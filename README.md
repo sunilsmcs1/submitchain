@@ -131,7 +131,7 @@ evaluation, replace `data/embeddings.npz` with the output of `gateway/embed.py`.
 
 ## Citation
 
-If you use this code, please cite the paper and the archived release (see `CITATION.cff`).
+If you use this code, please cite the paper and the archived release: Shinde, S. C. and Malemath, V. S. (2026) SubmitChain v1.0.0. Zenodo. https://doi.org/10.5281/zenodo.24161026
 
 ## Licence
 

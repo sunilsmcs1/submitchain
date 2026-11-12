@@ -2,6 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "SubmitChain: privacy-preserving cross-journal duplicate submission detection on Hyperledger Fabric"
 version: 1.0.0
+doi: 10.5281/zenodo.24161026
+repository-code: "https://github.com/sunilsmcs1/submitchain"
 date-released: 2026-11-12
 license: MIT
 authors:
