@@ -1,0 +1,44 @@
+{
+ "node": "v22.23.4",
+ "bits": 256,
+ "index": {
+  "tables": 128,
+  "tableBits": 14
+ },
+ "probes": 200,
+ "rows": [
+  {
+   "mode": "index",
+   "active": 100,
+   "median_ms": 1.657351,
+   "p95_ms": 5.718242,
+   "median_reads": 4,
+   "state_bytes_per_submission": 22861
+  },
+  {
+   "mode": "index",
+   "active": 1000,
+   "median_ms": 2.187834,
+   "p95_ms": 7.791426,
+   "median_reads": 28,
+   "state_bytes_per_submission": 22861
+  },
+  {
+   "mode": "index",
+   "active": 10000,
+   "median_ms": 3.575398,
+   "p95_ms": 10.52437,
+   "median_reads": 260,
+   "state_bytes_per_submission": 22862
+  },
+  {
+   "mode": "index",
+   "active": 20000,
+   "median_ms": 4.757313,
+   "p95_ms": 13.252256,
+   "median_reads": 523,
+   "state_bytes_per_submission": 22862
+  }
+ ],
+ "note": "50,000-active run exceeded the 8 GB memory of the benchmark machine and was not completed"
+}

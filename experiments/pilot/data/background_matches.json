@@ -1,0 +1,26 @@
+{
+ "128": {
+  "pairs": 255255,
+  "matches": 193,
+  "rate": 0.0007561066384595797,
+  "rate_same_topic": 0.006095635146232076,
+  "rate_cross_topic": 0.0,
+  "matches_cross": 0
+ },
+ "256": {
+  "pairs": 255255,
+  "matches": 252,
+  "rate": 0.0009872480460715754,
+  "rate_same_topic": 0.007959067652075043,
+  "rate_cross_topic": 0.0,
+  "matches_cross": 0
+ },
+ "512": {
+  "pairs": 255255,
+  "matches": 217,
+  "rate": 0.0008501302618949678,
+  "rate_same_topic": 0.006853641589286842,
+  "rate_cross_topic": 0.0,
+  "matches_cross": 0
+ }
+}

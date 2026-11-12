@@ -1,0 +1,6 @@
+{
+  "name": "submitchain-gateway-client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": { "@hyperledger/fabric-gateway": "^1.5.0", "@grpc/grpc-js": "^1.10.0" }
+}

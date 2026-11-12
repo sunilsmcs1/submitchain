@@ -1,0 +1,20 @@
+# Hyperledger Caliper benchmark for SubmitChain. NOT run in the development sandbox.
+# Repeat with ACTIVE = 100, 1000, 10000 preloaded submissions and with mode scan / band.
+test:
+  name: submitchain
+  description: Latency and throughput of registration, status update and explorer queries
+  workers:
+    number: 4
+  rounds:
+    - label: preload-active-submissions
+      txNumber: 1000            # set to the number of active submissions for this run
+      rateControl: { type: fixed-load, opts: { transactionLoad: 8 } }
+      workload: { module: workloads/register.js, arguments: { duplicateRate: 0 } }
+    - label: register
+      txDuration: 120
+      rateControl: { type: fixed-load, opts: { transactionLoad: 8 } }
+      workload: { module: workloads/register.js, arguments: { duplicateRate: 0.02 } }
+    - label: verify-exists
+      txDuration: 60
+      rateControl: { type: fixed-load, opts: { transactionLoad: 16 } }
+      workload: { module: workloads/query.js, arguments: {} }

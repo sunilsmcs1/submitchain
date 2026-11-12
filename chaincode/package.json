@@ -1,0 +1,16 @@
+{
+  "name": "submitchain-chaincode",
+  "version": "0.1.0",
+  "description": "SubmitChain: submission-lifecycle smart contract for cross-journal duplicate screening",
+  "main": "index.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "fabric-chaincode-node start",
+    "test": "node --test test/submitchain.test.js"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.0",
+    "fabric-shim": "^2.5.0"
+  },
+  "license": "Apache-2.0"
+}

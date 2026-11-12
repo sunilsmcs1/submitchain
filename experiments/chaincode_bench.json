@@ -1,0 +1,75 @@
+{
+  "node": "v22.23.4",
+  "bits": 256,
+  "index": {
+    "tables": 64,
+    "tableBits": 16
+  },
+  "probes": 200,
+  "rows": [
+    {
+      "mode": "scan",
+      "active": 100,
+      "median_ms": 0.855969,
+      "p95_ms": 1.834885,
+      "median_reads": 102,
+      "state_bytes_per_submission": 11797
+    },
+    {
+      "mode": "scan",
+      "active": 1000,
+      "median_ms": 6.800086,
+      "p95_ms": 8.244977,
+      "median_reads": 1002,
+      "state_bytes_per_submission": 11797
+    },
+    {
+      "mode": "scan",
+      "active": 10000,
+      "median_ms": 82.203368,
+      "p95_ms": 103.637191,
+      "median_reads": 10002,
+      "state_bytes_per_submission": 11798
+    },
+    {
+      "mode": "scan",
+      "active": 50000,
+      "median_ms": 482.394526,
+      "p95_ms": 554.857137,
+      "median_reads": 50002,
+      "state_bytes_per_submission": 11799
+    },
+    {
+      "mode": "index",
+      "active": 100,
+      "median_ms": 0.923118,
+      "p95_ms": 7.616172,
+      "median_reads": 2,
+      "state_bytes_per_submission": 11797
+    },
+    {
+      "mode": "index",
+      "active": 1000,
+      "median_ms": 0.913369,
+      "p95_ms": 8.650295,
+      "median_reads": 5,
+      "state_bytes_per_submission": 11797
+    },
+    {
+      "mode": "index",
+      "active": 10000,
+      "median_ms": 1.079146,
+      "p95_ms": 1.866903,
+      "median_reads": 35,
+      "state_bytes_per_submission": 11798
+    },
+    {
+      "mode": "index",
+      "active": 50000,
+      "median_ms": 2.168466,
+      "p95_ms": 10.488266,
+      "median_reads": 163,
+      "state_bytes_per_submission": 11799
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+ {
+  "L": 64,
+  "k": 16,
+  "index_recall": 0.8610687162247631,
+  "retained": 0.9383074382781472,
+  "heavy": 0.7357137156099884,
+  "spurious_per_1k_active": 0.9765625,
+  "entries_per_sub": 128
+ },
+ {
+  "L": 128,
+  "k": 16,
+  "index_recall": 0.9046817782414758,
+  "retained": 0.985832635425927,
+  "heavy": 0.8219847646676716,
+  "spurious_per_1k_active": 1.953125,
+  "entries_per_sub": 256
+ },
+ {
+  "L": 128,
+  "k": 14,
+  "index_recall": 0.9151969449340844,
+  "retained": 0.9972910230510953,
+  "heavy": 0.844544098970139,
+  "spurious_per_1k_active": 7.8125,
+  "entries_per_sub": 256
+ },
+ {
+  "L": 256,
+  "k": 16,
+  "index_recall": 0.916439093837598,
+  "retained": 0.9986445939492762,
+  "heavy": 0.8472633401682218,
+  "spurious_per_1k_active": 3.90625,
+  "entries_per_sub": 512
+ },
+ {
+  "L": 192,
+  "k": 14,
+  "index_recall": 0.917306007574985,
+  "retained": 0.9995892707129406,
+  "heavy": 0.8491789328485521,
+  "spurious_per_1k_active": 11.71875,
+  "entries_per_sub": 384
+ },
+ {
+  "L": 256,
+  "k": 12,
+  "index_recall": 0.9176824648931257,
+  "retained": 0.999999496627725,
+  "heavy": 0.8499991281425547,
+  "spurious_per_1k_active": 62.5,
+  "entries_per_sub": 512
+ }
+]

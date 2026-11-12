@@ -1,0 +1,11 @@
+{
+  "title": "SubmitChain: privacy-preserving cross-journal duplicate submission detection on Hyperledger Fabric",
+  "upload_type": "software",
+  "description": "Smart contract, journal gateway, explorer, benchmark construction and evaluation scripts, and pilot result files for the paper 'SubmitChain: A Privacy-Preserving Consortium Blockchain for Detecting Paraphrased Duplicate Manuscript Submissions Across Journals'.",
+  "creators": [
+    {"name": "Shinde, Suneel C.", "affiliation": "KLE College of Engineering and Technology, Chikodi, India", "orcid": "0000-0001-7262-8436"},
+    {"name": "Malemath, V. S.", "affiliation": "KLE Technological University, Belagavi, India", "orcid": "0000-0001-9867-4887"}
+  ],
+  "license": "MIT",
+  "keywords": ["blockchain", "Hyperledger Fabric", "duplicate submission", "research integrity", "locality-sensitive hashing", "privacy"]
+}

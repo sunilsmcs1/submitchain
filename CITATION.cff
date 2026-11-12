@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "SubmitChain: privacy-preserving cross-journal duplicate submission detection on Hyperledger Fabric"
+version: 1.0.0
+date-released: 2026-11-12
+license: MIT
+authors:
+  - family-names: Shinde
+    given-names: Suneel C.
+    affiliation: "Department of Computer Science and Engineering, KLE College of Engineering and Technology, Chikodi, India"
+    orcid: "https://orcid.org/0000-0001-7262-8436"
+  - family-names: Malemath
+    given-names: V. S.
+    affiliation: "Department of Computer Science and Engineering, KLE Technological University, Belagavi, India"
+    orcid: "https://orcid.org/0000-0001-9867-4887"
+keywords: [blockchain, Hyperledger Fabric, duplicate submission, research integrity, locality-sensitive hashing, privacy]

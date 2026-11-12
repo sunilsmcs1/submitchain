@@ -1,0 +1,22 @@
+{
+ "n_corpus": 715,
+ "n_sources": 240,
+ "n_pool": 475,
+ "sources_by_split": {
+  "test": 144,
+  "val": 96
+ },
+ "pairs_by_split_and_type": {
+  "test/heavy": 40,
+  "test/light": 144,
+  "test/medium": 144,
+  "test/topical-near": 720,
+  "test/topical-random": 720,
+  "val/heavy": 24,
+  "val/light": 96,
+  "val/medium": 96,
+  "val/topical-near": 480,
+  "val/topical-random": 480
+ },
+ "svd_explained_variance": 0.7663603993950714
+}
