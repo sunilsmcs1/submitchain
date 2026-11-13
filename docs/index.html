@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SubmitChain Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one narrow working column; a ledger-like register of rows, mono for every hash and ID. */
+:root{
+  --bg:#f4f6f7; --surface:#ffffff; --ink:#17232b; --muted:#5b6b75; --line:#d5dde2;
+  --accent:#0b6e75; --accent-ink:#ffffff; --accent-soft:#e0f0f1;
+  --good:#1f7a45; --warn:#9a6200; --bad:#b3372f; --info:#3b5b8c;
+  --good-soft:#e3f3e9; --warn-soft:#fbf0d9; --bad-soft:#f9e4e2; --info-soft:#e5ecf6;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#10181d; --surface:#18232a; --ink:#e6edf0; --muted:#97a7b0; --line:#2c3a43;
+    --accent:#4fc1c8; --accent-ink:#06282b; --accent-soft:#173338;
+    --good:#6fcf97; --warn:#e5b454; --bad:#f08a80; --info:#8fb0e6;
+    --good-soft:#173324; --warn-soft:#3a2e12; --bad-soft:#3d1f1c; --info-soft:#1c2a40;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#10181d; --surface:#18232a; --ink:#e6edf0; --muted:#97a7b0; --line:#2c3a43;
+  --accent:#4fc1c8; --accent-ink:#06282b; --accent-soft:#173338;
+  --good:#6fcf97; --warn:#e5b454; --bad:#f08a80; --info:#8fb0e6;
+  --good-soft:#173324; --warn-soft:#3a2e12; --bad-soft:#3d1f1c; --info-soft:#1c2a40;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:16px}
+header h1{font-size:22px;font-weight:600;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.demo{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:6px;padding:8px 12px;font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px}
+.tile b{display:block;font-family:var(--mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;color:var(--muted)}
+nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px}
+nav a{flex:1;text-align:center;padding:8px 6px;border-radius:6px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px}
+nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+section{display:none;flex-direction:column;gap:12px}
+section.on{display:flex}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card h2{font-size:15px;font-weight:600;margin:0}
+label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+textarea{min-height:96px;resize:vertical}
+input.mono{font-family:var(--mono);font-size:13px}
+button{font:inherit;font-weight:500;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:8px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.small{padding:4px 10px;font-size:13px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.row>label{flex:1;min-width:150px}
+.mono{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+dl{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:6px 12px;margin:0}
+dt{color:var(--muted);font-size:13px}
+dd{margin:0;overflow-wrap:anywhere}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;border:1px solid currentColor}
+.p-UNDER_REVIEW{color:var(--info);background:var(--info-soft)}
+.p-ACCEPTED{color:var(--good);background:var(--good-soft)}
+.p-REJECTED{color:var(--bad);background:var(--bad-soft)}
+.p-WITHDRAWN{color:var(--warn);background:var(--warn-soft)}
+.note{font-size:13px;color:var(--muted)}
+.alert{border-left:4px solid var(--bad);background:var(--bad-soft);padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px}
+.ok{border-left:4px solid var(--good);background:var(--good-soft);padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px}
+.hidden{border:1px dashed var(--line);border-radius:6px;padding:8px 12px;font-size:13px;color:var(--muted)}
+ul.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ul.list li{border-top:1px solid var(--line);padding:8px 0;display:flex;flex-direction:column;gap:2px}
+ul.list li:first-child{border-top:0}
+ul.list button.link{background:none;border:0;color:var(--accent);padding:0;text-align:left;font-family:var(--mono);font-size:13px;cursor:pointer;overflow-wrap:anywhere}
+.hist{border-left:2px solid var(--line);padding-left:12px;display:flex;flex-direction:column;gap:8px}
+.blk{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.blk.bad{border-color:var(--bad);background:var(--bad-soft)}
+.blk h3{margin:0;font-size:14px;font-weight:600;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+@media (max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)} dl{grid-template-columns:1fr} dt{margin-top:4px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>SubmitChain Explorer</h1>
+  <p>Look up a manuscript submission by its ID, the way a blockchain explorer looks up a transaction.</p>
+</header>
+<div class="demo">Demonstration prototype. The ledger runs in this browser tab and resets on reload. Journals, authors and manuscripts are invented examples. Fingerprints here use word-level SimHash; the full system uses semantic embeddings on Hyperledger Fabric.</div>
+<div class="tiles" id="tiles"></div>
+<nav aria-label="Views">
+  <a href="#explorer" id="tab-explorer">Explorer</a>
+  <a href="#register" id="tab-register">Register</a>
+  <a href="#ledger" id="tab-ledger">Ledger</a>
+</nav>
+
+<section id="view-explorer">
+  <div class="card">
+    <h2>Look up a submission</h2>
+    <form id="lookup" class="row">
+      <label>Submission ID<input class="mono" id="q" autocomplete="off" placeholder="64-character ID or its first characters"></label>
+      <button type="submit">Look up</button>
+    </form>
+    <div class="row">
+      <label>View as
+        <select id="role">
+          <option value="public">Public (no sign-in)</option>
+          <option value="editor">Member journal editor</option>
+          <option value="author">Author (ORCID sign-in)</option>
+        </select>
+      </label>
+      <label id="org-wrap" hidden>Your journal<select id="role-org"></select></label>
+      <label id="orcid-wrap" hidden>Your ORCID iD<input class="mono" id="role-orcid" placeholder="0000-0000-0000-0001"></label>
+    </div>
+    <p class="note" id="role-hint"></p>
+  </div>
+  <div id="result"></div>
+  <div class="card">
+    <h2>Recent registrations</h2>
+    <p class="note">Anyone can see that an ID was registered and when. Select one to look it up.</p>
+    <ul class="list" id="recent"></ul>
+  </div>
+</section>
+
+<section id="view-register">
+  <div class="card">
+    <h2>Register a new submission</h2>
+    <p class="note">This is what a journal's editorial system does when a manuscript arrives. The title and abstract stay with the journal. Only the ID, the author pseudonym, the fingerprint and the status go on the ledger.</p>
+    <form id="reg" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row">
+        <label>Receiving journal<select id="r-org"></select></label>
+        <label>Corresponding author's ORCID iD<input class="mono" id="r-orcid" value="0000-0000-0000-0007" required></label>
+      </div>
+      <label>Title<input id="r-title" required value="Federated learning for lightweight intrusion detection at IoT gateways"></label>
+      <label>Abstract<textarea id="r-abs" required>We propose a lightweight intrusion detection method for IoT gateways based on federated learning. Gateways train a compact neural network on local traffic and share only model updates with a coordinator. Experiments on public network traffic datasets show high detection accuracy with low memory use and limited communication cost.</textarea></label>
+      <div class="row"><button type="submit">Register on ledger</button><span class="note">The pre-filled text rewords an example already under review at another journal, so it should raise an alert.</span></div>
+    </form>
+  </div>
+  <div id="reg-result"></div>
+</section>
+
+<section id="view-ledger">
+  <div class="card">
+    <h2>Blocks</h2>
+    <p class="note">Each block stores the hash of the block before it. Changing any past record breaks every hash after it.</p>
+    <div class="row">
+      <button id="verify" type="button">Verify chain</button>
+      <button id="tamper" type="button" class="ghost">Tamper with block 2</button>
+      <button id="restore" type="button" class="ghost" hidden>Restore block 2</button>
+    </div>
+    <div id="verify-out"></div>
+  </div>
+  <div id="blocks" style="display:flex;flex-direction:column;gap:8px"></div>
+</section>
+</div>
+
+<script>
+/*CORE*/
+function sha256(str){
+  var ascii=unescape(encodeURIComponent(str));
+  function rr(v,a){return (v>>>a)|(v<<(32-a));}
+  var mathPow=Math.pow,maxWord=mathPow(2,32),result='',words=[],bitLen=ascii.length*8,i,j;
+  var hash=sha256.h=sha256.h||[],k=sha256.k=sha256.k||[],pc=k.length,isComp={};
+  for(var c=2;pc<64;c++){ if(!isComp[c]){ for(i=0;i<313;i+=c) isComp[i]=c; hash[pc]=(mathPow(c,.5)*maxWord)|0; k[pc++]=(mathPow(c,1/3)*maxWord)|0; } }
+  ascii+='\x80'; while(ascii.length%64-56) ascii+='\x00';
+  for(i=0;i<ascii.length;i++){ j=ascii.charCodeAt(i); words[i>>2]|=j<<((3-i)%4)*8; }
+  words[words.length]=((bitLen/maxWord)|0); words[words.length]=(bitLen);
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16),old=hash; hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash); hash[4]=(hash[4]+t1)|0;
+    }
+    for(i=0;i<8;i++) hash[i]=(hash[i]+old[i])|0;
+  }
+  for(i=0;i<8;i++){ for(j=3;j+1;j--){ var b=(hash[i]>>(j*8))&255; result+=((b<16)?'0':'')+b.toString(16); } }
+  return result;
+}
+var STOP={};'the and for with that this from are was were have has had not but can will its their our into than then also such using used use based show shows shown which while where when these those been being over under more most each both only very between within without about they them there here what does may one two new propose proposed paper method approach results'.split(' ').forEach(function(w){STOP[w]=1;});
+function stem(w){return w.replace(/(ations|ation|ings|ing|ies|ed|es|s)$/,'');}
+function tokens(text){return text.toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(function(w){return w.length>2&&!STOP[w];}).map(stem).filter(function(w){return w.length>2;});}
+var BITS=64;
+function fingerprint(text){
+  var acc=[],i; for(i=0;i<BITS;i++)acc[i]=0;
+  var seen={};
+  tokens(text).forEach(function(t){ if(seen[t])return; seen[t]=1; var h=sha256(t); for(var b=0;b<BITS;b++){ var nib=parseInt(h[b>>2],16); acc[b]+=((nib>>(3-(b&3)))&1)?1:-1; } });
+  var hex=''; for(i=0;i<BITS;i+=4){ var n=0; for(var b2=0;b2<4;b2++) n=(n<<1)|(acc[i+b2]>=0?1:0); hex+=n.toString(16); }
+  return hex;
+}
+var POP=[0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4];
+function hamming(a,b){var d=0;for(var i=0;i<a.length;i++)d+=POP[parseInt(a[i],16)^parseInt(b[i],16)];return d;}
+var TAU=12, KEY='consortium-demo-key';
+var ORGS=['Journal of Applied Computing (example)','Network Systems Letters (example)','Data Engineering Review (example)'];
+var chain=[],subs={},order=[],offchain={},alertCount=0,nonceN=0;
+function pseudonym(orcid){return sha256(KEY+'|'+orcid.trim());}
+function blockHash(b){return sha256(b.i+'|'+b.t+'|'+b.prev+'|'+JSON.stringify(b.tx));}
+function addBlock(tx,t){var b={i:chain.length,t:t,prev:chain.length?chain[chain.length-1].hash:'0'.repeat(64),tx:tx};b.hash=blockHash(b);b.txid=sha256('tx|'+b.hash);chain.push(b);return b;}
+function register(org,orcid,title,abs,t,nonce){
+  var a=pseudonym(orcid); nonce=nonce||('n'+(++nonceN));
+  var sid=sha256(a+'|'+org+'|'+t+'|'+nonce), fp=fingerprint(title+' '+abs), matches=[];
+  order.forEach(function(id){var s=subs[id]; if(s.status==='UNDER_REVIEW'&&s.org!==org){var d=hamming(fp,s.fp); if(d<=TAU)matches.push({sid:id,org:s.org,dist:d,sameAuthor:s.author===a});}});
+  var b=addBlock({type:'REGISTER',sid:sid,org:org,author:a,fp:fp,matches:matches.map(function(m){return m.sid;})},t);
+  subs[sid]={sid:sid,org:org,author:a,fp:fp,status:'UNDER_REVIEW',history:[{status:'UNDER_REVIEW',t:t,block:b.i,txid:b.txid}],alerts:matches.slice()};
+  matches.forEach(function(m){subs[m.sid].alerts.push({sid:sid,org:org,dist:m.dist,sameAuthor:m.sameAuthor});alertCount++;});
+  order.push(sid); offchain[sid]={title:title};
+  return {sid:sid,matches:matches,block:b};
+}
+function updateStatus(sid,org,status,t){
+  var s=subs[sid]; if(!s)return 'No such submission.'; if(s.org!==org)return 'Only the journal that registered a submission can change its status.';
+  if(s.status!=='UNDER_REVIEW')return 'This submission already has a final status.';
+  var b=addBlock({type:'STATUS',sid:sid,org:org,status:status},t); s.status=status; s.history.push({status:status,t:t,block:b.i,txid:b.txid}); return null;
+}
+function verifyChain(){for(var i=0;i<chain.length;i++){var b=chain[i];if(blockHash(b)!==b.hash)return i;if(i&&b.prev!==chain[i-1].hash)return i;}return -1;}
+function seed(){
+  register(ORGS[2],'0000-0000-0000-0003','Graph neural networks for short-term traffic flow forecasting','We model a road network as a graph and forecast traffic flow with a spatio-temporal graph neural network. The model combines graph convolution with gated recurrent units and is evaluated on highway sensor data.','2026-10-02T09:14:00Z','s1');
+  var r=register(ORGS[0],'0000-0000-0000-0004','A survey of consensus protocols for permissioned ledgers','This survey compares crash fault tolerant and Byzantine fault tolerant consensus protocols used in permissioned ledgers with respect to throughput, latency and fault assumptions.','2026-10-09T11:40:00Z','s2');
+  updateStatus(r.sid,ORGS[0],'REJECTED','2026-10-30T15:05:00Z');
+  r=register(ORGS[1],'0000-0000-0000-0005','Energy-aware task scheduling for edge clusters','We present an energy-aware scheduler for heterogeneous edge clusters that places containers using a multi-objective heuristic and reduces energy use while meeting deadlines.','2026-10-12T08:02:00Z','s3');
+  updateStatus(r.sid,ORGS[1],'ACCEPTED','2026-11-06T10:20:00Z');
+  register(ORGS[0],'0000-0000-0000-0007','Lightweight intrusion detection for IoT gateways using federated learning','This paper proposes a lightweight intrusion detection approach for IoT gateways using federated learning. Each gateway trains a compact neural network on its local traffic and shares only model updates with a coordinator. Experiments on public network traffic datasets show high detection accuracy with low memory use and limited communication cost.','2026-11-03T13:27:00Z','s4');
+}
+/*ENDCORE*/
+
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmt(t){return t.replace('T',' ').replace(/:\d\dZ$/,'').replace('Z','')+' UTC';}
+function now(){return new Date().toISOString().replace(/\.\d+Z$/,'Z');}
+function pill(s){return '<span class="pill p-'+s+'">'+s.replace('_',' ')+'</span>';}
+var current=null;
+
+function tiles(){
+  var active=order.filter(function(id){return subs[id].status==='UNDER_REVIEW';}).length;
+  $('tiles').innerHTML=[[chain.length,'Blocks'],[order.length,'Submissions'],[active,'Under review'],[alertCount,'Duplicate alerts']].map(function(x){return '<div class="tile"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>';}).join('');
+}
+function recent(){
+  $('recent').innerHTML=order.slice().reverse().map(function(id){return '<li><button class="link" type="button" data-sid="'+id+'">'+id+'</button><span class="note">Registered '+fmt(subs[id].history[0].t)+'</span></li>';}).join('');
+}
+function roleUI(){
+  var r=$('role').value; $('org-wrap').hidden=r!=='editor'; $('orcid-wrap').hidden=r!=='author';
+  $('role-hint').textContent=r==='public'?'The public can confirm that an ID exists and when it was registered. Nothing else.':r==='editor'?'An editor sees the status and any duplicate alert for submissions their own journal registered.':'An author sees the full history of their own submission. Example authors: 0000-0000-0000-0003, -0004, -0005, -0007.';
+  if(current)show(current);
+}
+function histHTML(s){return '<div class="hist">'+s.history.map(function(h){return '<div>'+pill(h.status)+' <span class="note">'+fmt(h.t)+' · block '+h.block+'</span><div class="mono note">tx '+h.txid+'</div></div>';}).join('')+'</div>';}
+function show(sid){
+  current=sid; var s=subs[sid], r=$('role').value, h='<div class="card"><h2>Submission record</h2><dl><dt>Submission ID</dt><dd class="mono">'+sid+'</dd><dt>Registered</dt><dd>'+fmt(s.history[0].t)+'</dd>';
+  var isEditor=r==='editor'&&$('role-org').value===s.org, isAuthor=r==='author'&&$('role-orcid').value.trim()&&pseudonym($('role-orcid').value)===s.author;
+  if(isEditor||isAuthor){
+    h+='<dt>Journal</dt><dd>'+esc(s.org)+'</dd><dt>Status</dt><dd>'+pill(s.status)+'</dd>';
+    h+='<dt>Title (kept off-chain)</dt><dd>'+esc(offchain[sid].title)+'</dd>';
+    if(isEditor)h+='<dt>Fingerprint</dt><dd class="mono">'+s.fp+'</dd>';
+    h+='</dl><h2>Status history</h2>'+histHTML(s);
+    if(isEditor){
+      if(s.alerts.length)h+=s.alerts.map(function(a){return '<div class="alert"><b>Possible duplicate.</b> A matching submission was registered by '+esc(a.org)+'. Fingerprint distance '+a.dist+' of '+BITS+' bits (alert at '+TAU+' or less).'+(a.sameAuthor?' The corresponding author is the same.':'')+' Current status there: '+pill(subs[a.sid].status)+'</div>';}).join('');
+      else h+='<div class="ok">No matching active submission at another journal.</div>';
+      if(s.status==='UNDER_REVIEW')h+='<div class="row"><span class="note">Record a decision:</span><button class="small ghost" data-st="REJECTED" type="button">Reject</button><button class="small ghost" data-st="WITHDRAWN" type="button">Withdrawn by author</button><button class="small ghost" data-st="ACCEPTED" type="button">Accept</button></div>';
+    } else h+='<p class="note">This history is your receipt. Anyone can check the ID and registration time in the public view.</p>';
+  } else {
+    h+='<dt>Exists on ledger</dt><dd>Yes</dd></dl>';
+    h+='<div class="hidden">Journal, status, author and content are hidden in this view.'+(r==='editor'?' This submission was registered by another journal.':r==='author'?' Enter the ORCID iD of this submission\'s corresponding author to see its history.':'')+'</div>';
+  }
+  $('result').innerHTML=h+'</div>';
+}
+function lookup(q){
+  q=q.trim().toLowerCase(); if(!q){$('result').innerHTML='';current=null;return;}
+  var hits=order.filter(function(id){return id.indexOf(q)===0;});
+  if(hits.length===1){$('q').value=hits[0];show(hits[0]);}
+  else{current=null;$('result').innerHTML='<div class="card"><div class="hidden">'+(hits.length?'Several IDs start with these characters. Enter more of the ID.':'No submission with this ID is registered. Check the ID and try again.')+'</div></div>';}
+}
+function blocks(){
+  var bad=verifyChain();
+  $('blocks').innerHTML=chain.slice().reverse().map(function(b){
+    var tx=b.tx, body=tx.type==='REGISTER'?'Register submission'+(tx.matches.length?' · '+tx.matches.length+' duplicate alert':''):'Status change to '+tx.status.replace('_',' ');
+    return '<div class="blk'+(bad>=0&&b.i>=bad?' bad':'')+'"><h3><span>Block '+b.i+'</span><span class="note">'+fmt(b.t)+'</span></h3><div>'+body+'</div><div class="mono note">submission '+tx.sid.slice(0,24)+'…</div><div class="mono note">hash '+b.hash+'</div><div class="mono note">prev '+b.prev+'</div></div>';
+  }).join('');
+}
+function refresh(){tiles();recent();blocks();}
+function route(){
+  var v=(location.hash||'#explorer').slice(1); if(['explorer','register','ledger'].indexOf(v)<0)v='explorer';
+  ['explorer','register','ledger'].forEach(function(n){$('view-'+n).classList.toggle('on',n===v); if(n===v)$('tab-'+n).setAttribute('aria-current','page'); else $('tab-'+n).removeAttribute('aria-current');});
+}
+
+seed();
+ORGS.forEach(function(o){['role-org','r-org'].forEach(function(id){var op=document.createElement('option');op.textContent=o;op.value=o;$(id).appendChild(op);});});
+$('r-org').value=ORGS[1];
+refresh(); roleUI(); route();
+window.addEventListener('hashchange',route);
+$('lookup').addEventListener('submit',function(e){e.preventDefault();lookup($('q').value);});
+$('role').addEventListener('change',roleUI); $('role-org').addEventListener('change',roleUI); $('role-orcid').addEventListener('input',roleUI);
+$('recent').addEventListener('click',function(e){var b=e.target.closest('button[data-sid]');if(b){$('q').value=b.dataset.sid;show(b.dataset.sid);$('result').scrollIntoView({block:'nearest'});}});
+$('result').addEventListener('click',function(e){var b=e.target.closest('button[data-st]');if(!b||!current)return;var err=updateStatus(current,$('role-org').value,b.dataset.st,now());if(err){$('result').insertAdjacentHTML('beforeend','<div class="card"><div class="alert">'+esc(err)+'</div></div>');return;}refresh();show(current);});
+$('reg').addEventListener('submit',function(e){
+  e.preventDefault();
+  var org=$('r-org').value, r=register(org,$('r-orcid').value,$('r-title').value,$('r-abs').value,now(),'u'+Math.random().toString(16).slice(2));
+  var h='<div class="card"><h2>Registered in block '+r.block.i+'</h2><dl><dt>Submission ID</dt><dd class="mono">'+r.sid+'</dd><dt>Fingerprint</dt><dd class="mono">'+subs[r.sid].fp+'</dd></dl>';
+  h+=r.matches.length?r.matches.map(function(m){return '<div class="alert"><b>Possible duplicate.</b> An active submission at '+esc(m.org)+' matches. Distance '+m.dist+' of '+BITS+' bits.'+(m.sameAuthor?' Same corresponding author.':'')+' Both editors are alerted.</div>';}).join(''):'<div class="ok">No matching active submission at another journal.</div>';
+  h+='<div class="row"><button type="button" class="small" id="open-new">Open in explorer</button></div></div>';
+  $('reg-result').innerHTML=h; refresh();
+  $('open-new').addEventListener('click',function(){$('q').value=r.sid;$('role').value='editor';$('role-org').value=org;roleUI();show(r.sid);location.hash='#explorer';});
+});
+$('verify').addEventListener('click',function(){var bad=verifyChain();$('verify-out').innerHTML=bad<0?'<div class="ok">Chain valid. All '+chain.length+' block hashes match.</div>':'<div class="alert"><b>Chain broken at block '+bad+'.</b> Its stored hash no longer matches its contents, so every later block is untrusted.</div>';blocks();});
+var saved=null;
+$('tamper').addEventListener('click',function(){if(chain.length<3)return;saved=chain[2].tx.org;chain[2].tx.org='Altered journal name';$('tamper').hidden=true;$('restore').hidden=false;$('verify').click();});
+$('restore').addEventListener('click',function(){chain[2].tx.org=saved;$('tamper').hidden=false;$('restore').hidden=true;$('verify').click();});
+</script>
+</body>
+</html>

@@ -102,6 +102,13 @@ Collect mean latency and throughput per (organisations, mode, active submissions
 The exchange of summaries through a Fabric private data collection (Section 2.5) is **not
 implemented**; in the experiment both summaries are produced locally.
 
+## Explorer portal (demo)
+
+`docs/index.html` is the role-restricted submission explorer described in Section 2.6 of the paper: look up a
+submission identifier and see what the public, a member editor and the author are each allowed to see. It is a
+self-contained demonstration — the ledger runs inside the browser tab and resets on reload — so it can be opened
+directly from the file or served with GitHub Pages (Settings → Pages → Branch `main`, folder `/docs`).
+
 ## Pilot evaluation (CPU only) — Sections 3.3–3.5 of the paper
 
 `experiments/pilot/` holds the scripts and result files of the pilot benchmark.
